@@ -6,6 +6,12 @@ set -ex
 : ${NAMESPACE:=default}
 : ${FORCE:=false}
 
+if [ "${SELECTOR_MODE}" == "equality-based" ] || [ "${SELECTOR_MODE}" == "set-based" ]; then 
+  CMD_SELECTOR="--selector ${SELECTOR}"
+else
+  CMD_SELECTOR=""
+fi
+
 if [ "${FORCE}" == "true" ]; then
   CMD_FORCE="--force --grace-period=0"
 else
@@ -16,7 +22,7 @@ while true; do
   kubectl \
     --namespace "${NAMESPACE}" \
     -o 'jsonpath={.items[*].metadata.name}' \
-    get pods | \
+    get pods ${CMD_SELECTOR} | \
       tr " " "\n" | \
       shuf | \
       head -n 1 |
